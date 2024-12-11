@@ -3,8 +3,53 @@
 
 #include "pch.h"
 #include "Task.h"
+#include <fstream>
+
+#pragma pack (push,1) // обязательно выключаем выравнивание элементов структур по умолчанию
+
+struct BitmapFileHeader
+{
+	char  bfType[2];  // сигнатура файла "BM"
+	unsigned long bfSize; // размер файла в байтах
+	unsigned short  bfReserved1;
+	unsigned short  bfReserved2;
+	unsigned long bfOffBits; // смещение относительно начала файла в байтах, где располагаются растровые данные
+};
+
+struct BitmapInfoHeader
+{
+	unsigned long biSize; // размер структуры BitmapInfoHeader == 40 байт
+	long biWidth;
+	long biHeight; // высота изображения в пикселах
+	unsigned short biPlanes; // число цветовых планов == 1
+	unsigned short biBitCount; // число бит на пиксель
+	unsigned long biCompression; // тип сжатия изображения
+	unsigned long biSizeImage; //размер растрового изображения в байтах
+	long biXPelsPerMeter;  // разрешение изображения по ширине
+	long biYPelsPerMeter;  // разрешение изображения по высоте
+	unsigned long biClrUsed; // число испольщуемых цветов изображения, если == 0, то используются все доступные цвета
+	unsigned long biClrImportant;  // число важных цветов изображения
+};
+
+#pragma pack(pop)
 
 
+bool CheckBMP(std::string fname)
+{
+	BitmapFileHeader BFH; // объявляем переменную для хранения заголовка BitmapFileHeader
+	BitmapInfoHeader BIH; // объявляем переменную для хранения заголовка BitmapInfoHeader
+	std::ifstream f(fname, std::ios::binary);
+	if (!f)
+		return false;
+	f.read((char*)&BFH, sizeof(BitmapFileHeader));		// читаем из файла заголовок BitmapFileHeader в переменную BFH
+	f.read((char*)&BIH, sizeof(BitmapInfoHeader));      // читаем из файла заголовок BitmapInfoHeader в переменную BIH
+	
+	if (BIH.biSize != 40 || BFH.bfType[0] != 'B' || BFH.bfType[0] != 'M' || BFH.bfSize != sizeof(f))
+		return false;
+	return true;
+	
+
+}
 
 
 /*
