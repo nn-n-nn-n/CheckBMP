@@ -43,12 +43,11 @@ bool CheckBMP(std::string fname)
 		return false;
 	f.read((char*)&BFH, sizeof(BitmapFileHeader));		// читаем из файла заголовок BitmapFileHeader в переменную BFH
 	f.read((char*)&BIH, sizeof(BitmapInfoHeader));      // читаем из файла заголовок BitmapInfoHeader в переменную BIH
-	
-	if (BIH.biSize != 40 || BFH.bfType[0] != 'B' || BFH.bfType[0] != 'M' || BFH.bfSize != sizeof(f))
-		return false;
-	return true;
-	
 
+	f.seekg(0, std::ios_base::end);						// ставим курсор в конец файла
+	if (BIH.biSize != 40 || BFH.bfType[0] != 'B' || BFH.bfType[1] != 'M' || BFH.bfSize != f.tellg())		// проверка файла на некорректность
+		return false;
+	return true;			// если всё хорошо
 }
 
 
